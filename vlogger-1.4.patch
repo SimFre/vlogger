@@ -1,0 +1,16 @@
+30a31
+> # 1.4   automatically creates two levels of subdirs.
+424a426,428
+>             unless ( -d "${vhost}/" . time2str( $TEMPLATE, time() ) ) {
+>                 mkdir("${vhost}" . time2str( $TEMPLATE, time() ) );
+>             }
+456,458c460,464
+<         if ( $reqsize =~ m/\d|/ && $reqsize > 0 ) {
+<             $tracker{$vhost} += $reqsize;
+<         }
+---
+>         if ($reqsize ne "-") {
+> 			  if ( $reqsize =~ m/\d|/ && $reqsize > 0 ) {
+>    	         $tracker{$vhost} += $reqsize;
+>       	  }
+> 		  }

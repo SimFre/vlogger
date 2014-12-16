@@ -23,11 +23,12 @@
 # 0.1	initial release
 # 0.2	cleanups, added -e option for errorlogs, added strict stuff
 # 0.3	cleanups, bugfixes, docs, added -r size rotation option
-# 0.4   added dbi usage tracking option, code cleanups from cz@digitalfreaks.org
+# 0.4 added dbi usage tracking option, code cleanups from cz@digitalfreaks.org
 # 1.0	small bugfixes, first production release
-# 1.1   bugfix release
-# 1.2   support for mod_logio
+# 1.1 bugfix release
+# 1.2 support for mod_logio
 # 1.3	various contributed bugfixes
+# 1.4 automatically creates two levels of subdirs.
 #
 # 
 # TODO:
@@ -422,6 +423,9 @@ else {
             unless ( -d "${vhost}" ) {
                 mkdir("${vhost}");
             }
+            unless ( -d "${vhost}/" . time2str( $TEMPLATE, time() ) ) {
+                mkdir("${vhost}" . time2str( $TEMPLATE, time() ) );
+            }
 
             # open the file using the template
             open $vhost, ">>${vhost}/" . time2str( $TEMPLATE, time() )
@@ -453,9 +457,11 @@ else {
             $log_line =~ s/^\S*\s+//o;
         }
 
-        if ( $reqsize =~ m/\d|/ && $reqsize > 0 ) {
-            $tracker{$vhost} += $reqsize;
-        }
+        if ($reqsize ne "-") {
+			  if ( $reqsize =~ m/\d|/ && $reqsize > 0 ) {
+   	         $tracker{$vhost} += $reqsize;
+      	  }
+		  }
 
         print $vhost $log_line;
 
