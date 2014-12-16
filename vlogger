@@ -23,12 +23,12 @@
 # 0.1	initial release
 # 0.2	cleanups, added -e option for errorlogs, added strict stuff
 # 0.3	cleanups, bugfixes, docs, added -r size rotation option
-# 0.4 added dbi usage tracking option, code cleanups from cz@digitalfreaks.org
+# 0.4   added dbi usage tracking option, code cleanups from cz@digitalfreaks.org
 # 1.0	small bugfixes, first production release
-# 1.1 bugfix release
-# 1.2 support for mod_logio
+# 1.1   bugfix release
+# 1.2   support for mod_logio
 # 1.3	various contributed bugfixes
-# 1.4 automatically creates two levels of subdirs.
+# 1.4   automatically creates two levels of subdirs.
 #
 # 
 # TODO:
@@ -148,6 +148,8 @@ use sigtrap qw(handler exitall HUP USR1 TERM INT PIPE);
 use Date::Format;
 use Getopt::Std;
 use IO::Handle;
+use File::Path qw(make_path);
+use File::Basename;
 
 # get command line options
 our %OPTS;
@@ -419,18 +421,19 @@ else {
                 delete( $logs{$key} );
             }
 
+            my $filename = "${vhost}/" . time2str( $TEMPLATE, time() );
+            my $filepath = dirname($filename);
+
             # check if directory is there
-            unless ( -d "${vhost}" ) {
-                mkdir("${vhost}");
-            }
-            unless ( -d "${vhost}/" . time2str( $TEMPLATE, time() ) ) {
-                mkdir("${vhost}" . time2str( $TEMPLATE, time() ) );
+            unless ( -d $filepath ) {
+                print "mkdir: " . $filepath . "\n";
+                make_path($filepath)
+                  or die ( "can't mkdir $filepath" );
             }
 
             # open the file using the template
-            open $vhost, ">>${vhost}/" . time2str( $TEMPLATE, time() )
-              or die ( "can't open $LOGDIR/${vhost}/"
-                . time2str( $TEMPLATE, time() ) );
+            open $vhost, ">>".$filename
+              or die ( "can't open $filename" );
 
             # autoflush the handle unless -a
             if ( !$OPTS{'a'} ) {
